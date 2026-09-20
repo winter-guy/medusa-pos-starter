@@ -9,7 +9,7 @@ import {
   AdminUpdateDraftOrderItem,
 } from '@medusajs/types';
 import { useMutation, UseMutationOptions, useQuery, useQueryClient } from '@tanstack/react-query';
-import * as SecureStore from 'expo-secure-store';
+import * as Storage from '@/utils/storage';
 import * as React from 'react';
 
 const DRAFT_ORDER_ID_STORAGE_KEY = 'draft_order_id';
@@ -48,7 +48,7 @@ const useGetOrSetDraftOrderId = () => {
   const getOrSetDefaultCustomer = useGetOrSetDefaultCustomer();
 
   return React.useCallback(async () => {
-    const draftOrderId = await SecureStore.getItemAsync(DRAFT_ORDER_ID_STORAGE_KEY);
+    const draftOrderId = await Storage.getItemAsync(DRAFT_ORDER_ID_STORAGE_KEY);
 
     if (draftOrderId) {
       return draftOrderId;
@@ -70,7 +70,7 @@ const useGetOrSetDraftOrderId = () => {
       customer_id: defaultCustomerId,
     });
 
-    await SecureStore.setItemAsync(DRAFT_ORDER_ID_STORAGE_KEY, newDraftOrder.draft_order.id);
+    await Storage.setItemAsync(DRAFT_ORDER_ID_STORAGE_KEY, newDraftOrder.draft_order.id);
 
     return newDraftOrder.draft_order.id;
   }, [getOrSetDefaultCustomer, sdk, settings.data?.region?.id, settings.data?.sales_channel?.id]);
@@ -106,7 +106,7 @@ export const useCurrentDraftOrder = () => {
   return useQuery({
     queryKey: ['draft-order'],
     queryFn: async () => {
-      const draftOrderId = await SecureStore.getItemAsync(DRAFT_ORDER_ID_STORAGE_KEY);
+      const draftOrderId = await Storage.getItemAsync(DRAFT_ORDER_ID_STORAGE_KEY);
 
       if (!draftOrderId) {
         return null;
@@ -127,12 +127,12 @@ export const useCancelDraftOrder = (options?: Omit<UseMutationOptions<void>, 'mu
   return useMutation({
     mutationKey: ['draft-order', 'cancel'],
     mutationFn: async () => {
-      const draftOrderId = await SecureStore.getItemAsync(DRAFT_ORDER_ID_STORAGE_KEY);
+      const draftOrderId = await Storage.getItemAsync(DRAFT_ORDER_ID_STORAGE_KEY);
       if (!draftOrderId) {
         throw new Error('Draft order ID not found');
       }
 
-      await SecureStore.deleteItemAsync(DRAFT_ORDER_ID_STORAGE_KEY);
+      await Storage.deleteItemAsync(DRAFT_ORDER_ID_STORAGE_KEY);
       await sdk.admin.draftOrder.delete(draftOrderId);
     },
     ...options,
@@ -584,7 +584,7 @@ export const useCompleteDraftOrder = (
       await sdk.client.fetch(`/admin/orders/${draftOrderId}/complete`, {
         method: 'POST',
       });
-      await SecureStore.deleteItemAsync(DRAFT_ORDER_ID_STORAGE_KEY);
+      await Storage.deleteItemAsync(DRAFT_ORDER_ID_STORAGE_KEY);
     },
     ...options,
     onSettled: async (...args) => {
