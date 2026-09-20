@@ -17,9 +17,17 @@ const normalizeUrl = (url: string): string => {
 
   const trimmed = url.trim();
   const scheme = __DEV__ && /^http:\/\//i.test(trimmed) ? 'http' : 'https';
-  const host = trimmed.replace(/^https?:\/\//i, '').replace(/\/+$/, '');
+  const host = trimmed.replace(/^https?:\/\//i, '');
 
-  return host ? `${scheme}://${host}` : '';
+  if (!host) return '';
+
+  try {
+    // Reduced to the origin because /health and the Admin API both live at the server
+    // root, so pasting the dashboard URL (https://shop.example.com/app) still resolves.
+    return new URL(`${scheme}://${host}`).origin;
+  } catch {
+    return '';
+  }
 };
 
 const validateMedusaUrl = async (url: string): Promise<boolean> => {
