@@ -9,16 +9,22 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 import * as z from 'zod/v4';
 
+// Returns an absolute URL. An explicit http:// is honoured only in development, so a
+// local or LAN backend without TLS can be used; release builds always upgrade to https
+// because admin credentials cross this connection.
 const normalizeUrl = (url: string): string => {
   if (!url) return url;
-  // Remove http:// or https:// if present
-  return url.replace(/^https?:\/\//, '');
+
+  const trimmed = url.trim();
+  const scheme = __DEV__ && /^http:\/\//i.test(trimmed) ? 'http' : 'https';
+  const host = trimmed.replace(/^https?:\/\//i, '').replace(/\/+$/, '');
+
+  return host ? `${scheme}://${host}` : '';
 };
 
 const validateMedusaUrl = async (url: string): Promise<boolean> => {
   try {
-    const normalizedUrl = normalizeUrl(url);
-    if (!normalizedUrl) {
+    if (!url) {
       console.error('Invalid URL: empty or undefined');
       return false;
     }
@@ -26,7 +32,7 @@ const validateMedusaUrl = async (url: string): Promise<boolean> => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-    const response = await fetch(`https://${normalizedUrl}/health`, {
+    const response = await fetch(`${url}/health`, {
       method: 'GET',
       signal: controller.signal,
       credentials: 'omit',
@@ -58,7 +64,7 @@ const loginSchema = z.object({
         if (!url) return false;
 
         try {
-          new URL(`https://${url}`);
+          new URL(url);
         } catch {
           console.error('Invalid URL format');
           return false;
@@ -83,9 +89,8 @@ export default function LoginScreen() {
 
   const handleLogin = async (data: LoginFormData) => {
     setError(null);
-    const fullUrl = `https://${data.medusaUrl}`;
     try {
-      await auth.login(fullUrl, data.email, data.password);
+      await auth.login(data.medusaUrl, data.email, data.password);
     } catch (err: any) {
       setError(err?.message || 'Login failed. Please try again.');
     }
