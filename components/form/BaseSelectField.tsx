@@ -4,7 +4,7 @@ import { Text } from '@/components/ui/Text';
 import { clx } from '@/utils/clx';
 import React, { useEffect } from 'react';
 import { FieldError, useController, useFormContext } from 'react-hook-form';
-import { TouchableOpacity, View } from 'react-native';
+import { TouchableOpacity, View, ViewStyle } from 'react-native';
 import Animated, { AnimatedStyle, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 export interface SelectOption {
@@ -34,7 +34,7 @@ interface BaseSelectFieldProps extends BaseSelectProps {
     error: FieldError | undefined;
     value: any;
     onChange: (value: any) => void;
-    floatingPlaceholderStyle: AnimatedStyle;
+    floatingPlaceholderStyle: AnimatedStyle<ViewStyle>;
     showFloating: boolean;
     placeholder: string;
     buttonClassName: string;

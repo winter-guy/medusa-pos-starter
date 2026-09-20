@@ -7,7 +7,6 @@
     "icon": "./assets/images/icon.png",
     "scheme": "agilopos",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "com.agilo.pos",
       "supportsTablet": true
@@ -17,7 +16,6 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true,
       "softwareKeyboardLayoutMode": "pan",
       "package": "com.agilo.pos"
     },
@@ -55,7 +53,9 @@
           ]
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-image",
+      "expo-status-bar"
     ],
     "experiments": {
       "typedRoutes": true
