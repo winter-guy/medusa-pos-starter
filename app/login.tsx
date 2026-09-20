@@ -6,7 +6,7 @@ import { LayoutWithKeyboardAvoidingScroll } from '@/components/ui/Layout';
 import { Text } from '@/components/ui/Text';
 import { useAuthCtx } from '@/contexts/auth';
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import * as z from 'zod/v4';
 
 // Returns an absolute URL. An explicit http:// is honoured only in development, so a
@@ -35,6 +35,13 @@ const validateMedusaUrl = async (url: string): Promise<boolean> => {
     if (!url) {
       console.error('Invalid URL: empty or undefined');
       return false;
+    }
+
+    // /health is never CORS-enabled server-side, so a browser fetch to it always fails on
+    // web regardless of the server's allowed origins. Native has no CORS enforcement, so the
+    // reachability check only runs there; on web the real login call surfaces bad URLs instead.
+    if (Platform.OS === 'web') {
+      return true;
     }
 
     const controller = new AbortController();
