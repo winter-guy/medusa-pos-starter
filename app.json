@@ -9,7 +9,10 @@
     "userInterfaceStyle": "light",
     "ios": {
       "bundleIdentifier": "com.agilo.pos",
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocalNetworkUsageDescription": "Allow $(PRODUCT_NAME) to find and connect to your Medusa backend on the local network."
+      }
     },
     "android": {
       "adaptiveIcon": {
